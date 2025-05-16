@@ -1,0 +1,38 @@
+
+ :root {
+  --core-typography-font-weight-default: 500;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+
+  font-family: var(--core-typography-font-family-product);
+  font-weight: var(--core-typography-font-weight-default);
+  line-height: 1.25;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+ul {
+  padding-left: 0;
+}
+
+li {
+  margin-left: 2rem;
+}
+
+
