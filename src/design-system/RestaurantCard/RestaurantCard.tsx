@@ -8,6 +8,7 @@ import Link from 'next/link';
 
 type RestaurantCardProps = {
   restaurant: Restaurant;
+  hasCTA?: boolean;
 };
 
 /**

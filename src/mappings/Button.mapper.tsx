@@ -6,6 +6,11 @@ import {
 import Button from '@/design-system/Button/Button';
 import Tooltip from '@/design-system/Tooltip/Tooltip';
 import { IconContainer } from '@/design-system/Button/Button.styles';
+import {
+  ButtonSize,
+  Hierarchy,
+  Intent,
+} from '@/design-system/Button/Button.types';
 
 // ❖ Button
 interface FigmaButtonProps extends BaseFigmaProps {
@@ -33,35 +38,28 @@ export default figmaMapping({
     // Convert 'True'/'False' strings to booleans
     const fillContainer = figma.FillContainer === 'True';
     const isInverse = figma.Inverse === 'True';
+    const hierarchy = figma.Hierarchy?.toLowerCase().replace(
+      /-|\s/g,
+      ''
+    ) as Hierarchy;
 
     // Base button props
     const buttonProps = {
-      hierarchy: figma.Hierarchy?.toLowerCase() ?? 'primary',
-      size: figma.Size?.toLowerCase() ?? 'm',
-      state: figma.State?.toLowerCase() ?? 'default',
-      intent: figma.Intent?.toLowerCase() ?? 'default',
+      hierarchy: hierarchy ?? 'primary',
+      size: (figma.Size?.toLowerCase() as ButtonSize) ?? 'm',
+      intent: (figma.Intent?.toLowerCase() as Intent) ?? 'default',
       inverse: isInverse,
       fillContainer: fillContainer,
+      onClick: () => {},
+      leadingIcon: figma.hasLeadingIcon
+        ? () => figma['Leading Icon']
+        : undefined,
+      trailingIcon: figma.hasTrailingIcon
+        ? () => figma['Leading Icon']
+        : undefined,
     };
 
-    const button = (
-      <Button {...buttonProps}>
-        {figma.hasLeadingIcon && (
-          <IconContainer position="leading">
-            {figma['Leading Icon']}
-          </IconContainer>
-        )}
-        {figma.Label}
-        {figma.hasTrailingIcon && (
-          <IconContainer position="trailing">{figma.Icon}</IconContainer>
-        )}
-      </Button>
-    );
-
-    // Wrap with tooltip if needed
-    if (figma.hasTooltip) {
-      return <Tooltip content={figma.Label}>{button}</Tooltip>;
-    }
+    const button = <Button {...buttonProps}>{figma.Label}</Button>;
 
     return button;
   },
