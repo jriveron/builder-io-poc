@@ -1,0 +1,20 @@
+# Project-wide guidelines
+Use Next.js best practices to contribute to this project.
+Use functional components with TypeScript interfaces for props
+Respect the existing GraphQL schema from the API
+Do not update the GraphQL query and mutation
+Use the path aliases defined in the Typescript configuration
+
+# Component structure
+All components should have prop validation
+Place components in src/components/{ComponentName}/{ComponentName}.tsx structure
+Place styled components in src/components/{ComponentName}/{ComponentName}.styles.tsx structure
+Export components from an src/components/{ComponentName}/index.ts file in each component directory
+All component should respect the WCAG 2.1 guidelines
+Respect the Typescript interface from the existing components
+
+# Styling guidelines
+Use Emotion styled function to create styled components
+Do not use Emotion css function for styling components
+Do not use style object for styling components
+Use the corresponding tokens from the Emotion theme to match Figma variables when appropriate
