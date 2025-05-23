@@ -4,8 +4,6 @@ import {
   ChildrenNode,
 } from '@builder.io/dev-tools/figma';
 import Button from '@/design-system/Button/Button';
-import Tooltip from '@/design-system/Tooltip/Tooltip';
-import { IconContainer } from '@/design-system/Button/Button.styles';
 import {
   ButtonSize,
   Hierarchy,
