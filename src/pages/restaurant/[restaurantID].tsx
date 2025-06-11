@@ -1,19 +1,20 @@
 import React from 'react';
 import { GetServerSideProps, NextPage } from 'next';
 import { gql, useQuery } from '@apollo/client';
+import { useRouter } from 'next/router';
+import styled from '@emotion/styled';
 
-import { Container, containerPaddingStyle } from '@/components/Container';
+import { Container } from '@/components/Container';
 import SEO from '@/components/SEO';
-import TopRestaurantsList from '@/components/TopRestaurantsList/TopRestaurantsList';
+import RestaurantGallery from '@/components/RestaurantGallery';
+import RestaurantInfo from '@/components/RestaurantInfo';
+import RelatedRestaurants from '@/components/RelatedRestaurants';
 import { Restaurant, TopRestaurantResult } from '@/types/api';
 import Callout from '@/design-system/Callout/Callout';
 import Spinner from '@/design-system/Spinner/Spinner';
 import { HStack } from '@/design-system/Stack/Stack';
 import Button from '@/design-system/Button/Button';
 import { ChevronLeft } from '@/design-system/icons';
-import { useRouter } from 'next/navigation';
-import styled from '@emotion/styled';
-import Heading from '@/design-system/Heading/Heading';
 
 export const GET_RESTAURANT_PAGE_DATA = gql`
   query GetRestaurantPageData($restaurantID: ID!) {
@@ -82,9 +83,30 @@ type GetRestaurantDataQuery = {
   getTopRestaurants: [TopRestaurantResult];
 };
 
-const Header = styled.div`
-  ${containerPaddingStyle}
-  margin-bottom: ${({ theme }) => theme.space.coreSpacing08};
+const PageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.space.coreSpacing08};
+  width: 100%;
+  max-width: 24.375rem; /* 390px - mobile-first design from Figma */
+  margin: 0 auto;
+  padding: ${({ theme }) => theme.space.coreSpacing11} 1.3125rem
+    ${({ theme }) => theme.space.coreSpacing08}; /* 21px sides from design */
+
+  @media (min-width: 768px) {
+    max-width: 48rem;
+    padding: ${({ theme }) => theme.space.coreSpacing11}
+      ${({ theme }) => theme.space.coreSpacing08}
+      ${({ theme }) => theme.space.coreSpacing08};
+  }
+
+  @media (min-width: 1024px) {
+    max-width: 64rem;
+  }
+`;
+const BackButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 const RestaurantPage: NextPage<RestaurantPageProps> = ({ restaurantID }) => {
@@ -102,7 +124,7 @@ const RestaurantPage: NextPage<RestaurantPageProps> = ({ restaurantID }) => {
     return city.name === restaurant?.address.locality;
   });
   const restaurantCity = topRestaurantsResults?.city;
-  const otherRestaurants = topRestaurantsResults?.restaurants;
+  const otherRestaurants = topRestaurantsResults?.restaurants || [];
 
   const pageTitle = restaurant
     ? `Restaurant - ${restaurant.name}`
@@ -111,48 +133,92 @@ const RestaurantPage: NextPage<RestaurantPageProps> = ({ restaurantID }) => {
     ? `Discover the restaurant ${restaurant.name}. Book a table online at TheFork.`
     : 'Find and book the best restaurants at TheFork.';
 
+  const handleSeeMore = () => {
+    if (restaurantCity) {
+      router.push(`/city/${restaurantCity.id}`);
+    }
+  };
+
+  const handleGoBack = () => {
+    router.back();
+  };
+
+  // Create multiple restaurant images for gallery
+  // In a real app, these would come from the API
+  const restaurantImages = [
+    restaurant?.photo ||
+      'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=300&fit=crop',
+    restaurant?.photo ||
+      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&h=150&fit=crop',
+    restaurant?.photo ||
+      'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=200&h=150&fit=crop',
+    restaurant?.photo ||
+      'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=200&h=150&fit=crop',
+    restaurant?.photo ||
+      'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?w=200&h=150&fit=crop',
+  ];
+
   return (
     <React.Fragment>
       <SEO
         title={pageTitle}
         description={pageDescription}
-        canonical={`https://www.thefork.com/resturant/${restaurantID}`}
+        canonical={`https://www.thefork.com/restaurant/${restaurantID}`}
         ogImage={restaurant?.photo}
       />
-      <Container>
-        {error ? (
+
+      {error ? (
+        <Container>
           <Callout
             collapsible={false}
             intent="alert"
             description="Error loading data. Please try again later."
           />
-        ) : loading ? (
+        </Container>
+      ) : loading ? (
+        <Container>
           <HStack horizontalAlign="center">
-            <Spinner aria-label="Loading the city information..." size="l" />
+            <Spinner
+              aria-label="Loading the restaurant information..."
+              size="l"
+            />
           </HStack>
-        ) : restaurant && restaurantCity ? (
-          <React.Fragment>
-            <Header>
-              {restaurantCity && (
-                <Button
-                  hierarchy="tertiary"
-                  leadingIcon={() => <ChevronLeft />}
-                  onClick={() => router.back()}
-                />
-              )}
-            </Header>
-            <Header>
-              <Heading variant="h2">{restaurant.name}</Heading>
-            </Header>
-          </React.Fragment>
-        ) : (
+        </Container>
+      ) : restaurant && restaurantCity ? (
+        <PageContainer>
+          <BackButtonContainer>
+            <Button
+              hierarchy="tertiary"
+              leadingIcon={() => <ChevronLeft />}
+              onClick={handleGoBack}
+              aria-label="Go back to previous page"
+            />
+          </BackButtonContainer>
+
+          <RestaurantGallery
+            images={restaurantImages}
+            alt={`${restaurant.name} restaurant images`}
+          />
+
+          <RestaurantInfo restaurant={restaurant} />
+
+          {otherRestaurants.length > 0 && (
+            <RelatedRestaurants
+              cityName={restaurantCity.name}
+              restaurants={otherRestaurants}
+              onSeeMore={handleSeeMore}
+            />
+          )}
+        </PageContainer>
+      ) : (
+        <Container>
           <Callout
             collapsible={false}
             intent="warning"
             description="Restaurant not found. Please select a different restaurant."
           />
-        )}
-      </Container>
+        </Container>
+      )}
     </React.Fragment>
   );
 };
