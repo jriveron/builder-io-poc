@@ -4,7 +4,7 @@ import { gql, useQuery } from '@apollo/client';
 
 import { Container, containerPaddingStyle } from '@/components/Container';
 import SEO from '@/components/SEO';
-import TopRestaurantsList from '@/components/TopRestaurantsList/TopRestaurantsList';
+import RestaurantPageInfo from '@/components/RestaurantPageInfo';
 import { Restaurant, TopRestaurantResult } from '@/types/api';
 import Callout from '@/design-system/Callout/Callout';
 import Spinner from '@/design-system/Spinner/Spinner';
@@ -13,7 +13,6 @@ import Button from '@/design-system/Button/Button';
 import { ChevronLeft } from '@/design-system/icons';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import Heading from '@/design-system/Heading/Heading';
 
 export const GET_RESTAURANT_PAGE_DATA = gql`
   query GetRestaurantPageData($restaurantID: ID!) {
@@ -141,9 +140,11 @@ const RestaurantPage: NextPage<RestaurantPageProps> = ({ restaurantID }) => {
                 />
               )}
             </Header>
-            <Header>
-              <Heading variant="h2">{restaurant.name}</Heading>
-            </Header>
+            <RestaurantPageInfo
+              restaurant={restaurant}
+              otherRestaurants={otherRestaurants}
+              cityName={restaurantCity.name}
+            />
           </React.Fragment>
         ) : (
           <Callout
