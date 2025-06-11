@@ -5,6 +5,7 @@ import { gql, useQuery } from '@apollo/client';
 import { Container, containerPaddingStyle } from '@/components/Container';
 import SEO from '@/components/SEO';
 import TopRestaurantsList from '@/components/TopRestaurantsList/TopRestaurantsList';
+import RestaurantPageInfo from '@/components/RestaurantPageInfo/RestaurantPageInfo';
 import { Restaurant, TopRestaurantResult } from '@/types/api';
 import Callout from '@/design-system/Callout/Callout';
 import Spinner from '@/design-system/Spinner/Spinner';
@@ -98,8 +99,8 @@ const RestaurantPage: NextPage<RestaurantPageProps> = ({ restaurantID }) => {
   );
 
   const restaurant = data?.getRestaurant;
-  const topRestaurantsResults = data?.getTopRestaurants.find(({ city }) => {
-    return city.name === restaurant?.address.locality;
+  const topRestaurantsResults = data?.getTopRestaurants?.find(({ city }) => {
+    return city.name === restaurant?.address?.locality;
   });
   const restaurantCity = topRestaurantsResults?.city;
   const otherRestaurants = topRestaurantsResults?.restaurants;
@@ -110,6 +111,11 @@ const RestaurantPage: NextPage<RestaurantPageProps> = ({ restaurantID }) => {
   const pageDescription = restaurant
     ? `Discover the restaurant ${restaurant.name}. Book a table online at TheFork.`
     : 'Find and book the best restaurants at TheFork.';
+
+  const handleBookNow = () => {
+    // TODO: Implement booking functionality
+    console.log('Book now clicked for restaurant:', restaurant?.name);
+  };
 
   return (
     <React.Fragment>
@@ -141,9 +147,32 @@ const RestaurantPage: NextPage<RestaurantPageProps> = ({ restaurantID }) => {
                 />
               )}
             </Header>
-            <Header>
-              <Heading variant="h2">{restaurant.name}</Heading>
-            </Header>
+            <RestaurantPageInfo
+              restaurantName={restaurant?.name}
+              rating={restaurant?.aggregateRatings?.ratingValue}
+              address={restaurant?.address?.street}
+              zipcode={restaurant?.address?.zipCode}
+              locality={restaurant?.address?.locality}
+              country={restaurant?.address?.country}
+              averagePriceValue={restaurant?.averagePrice?.value?.toString()}
+              averagePriceCurrency={restaurant?.averagePrice?.currency}
+              images={{
+                main: restaurant?.photo,
+                gallery: [
+                  restaurant?.photo,
+                  restaurant?.photo,
+                  restaurant?.photo,
+                  restaurant?.photo,
+                ],
+              }}
+              onBookNow={handleBookNow}
+            />
+            {otherRestaurants && otherRestaurants.length > 0 && (
+              <TopRestaurantsList
+                city={restaurantCity}
+                restaurants={otherRestaurants}
+              />
+            )}
           </React.Fragment>
         ) : (
           <Callout
